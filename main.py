@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 from typing import Optional
 import json
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import os
 from fastapi.encoders import jsonable_encoder
 
@@ -48,8 +48,8 @@ async def create_session():
             "2": {},  # Empty data for stage 2
             "3": {}   # Empty data for stage 3
         },
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
+        "created_at": datetime.now(timezone.utc),
+        "updated_at": datetime.now(timezone.utc)
     }
     
     result = await sessions_collection.insert_one(session)
@@ -84,7 +84,7 @@ async def update_stage(session_id: str, stage: int, stage_data: SessionStage):
     update_data = {
         f"stages.{stage}": stage_data.data,
         "current_stage": stage,
-        "updated_at": datetime.utcnow()
+        "updated_at": datetime.now(timezone.utc)
     }
     
     await sessions_collection.update_one(
@@ -116,7 +116,7 @@ async def move_stage(session_id: str, direction: str):
         {
             "$set": {
                 "current_stage": new_stage,
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now(timezone.utc)
             }
         }
     )
