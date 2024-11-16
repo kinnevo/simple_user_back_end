@@ -220,6 +220,16 @@ async def register_user(username: str, password: str):
     
     return {"id": str(result.inserted_id), "username": username}
 
+async def get_current_session(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+        return await sessions_collection.find_one({"username": username, "is_active": True})
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+
 # Routes
 @app.post("/api/auth/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -242,3 +252,24 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @app.post("/api/auth/register", response_model=UserResponse)
 async def register(user: UserCreate):
     return await register_user(user.username, user.password)
+
+@app.post("/api/auth/logout")
+async def logout(session: dict = Depends(get_current_session)):
+    try:
+        result = await sessions_collection.update_one(
+            {"_id": session["_id"]},
+            {
+                "$set": {
+                    "ended_at": datetime.now(timezone.utc),
+                    "is_active": False
+                }
+            }
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=400, detail="Failed to logout")
+            
+        return {"message": "Logged out successfully"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
