@@ -82,9 +82,13 @@ async def create_session():
     session = {
         "current_stage": 1,
         "stages": {
-            "1": {},  # Empty data for stage 1
-            "2": {},  # Empty data for stage 2
-            "3": {}   # Empty data for stage 3
+            "1": {},   # Empty data for stage 1
+            "2": {},   # Empty data for stage 2
+            "3": {},   # Empty data for stage 3
+            "4": {},   # Empty data for stage 4
+            "5": {},   # Empty data for stage 5
+            "6": {},   # Empty data for stage 6
+            "7": {}    # Empty data for stage 7
         },
         "created_at": datetime.now(timezone.utc),
         "updated_at": datetime.now(timezone.utc)
@@ -142,7 +146,7 @@ async def move_stage(session_id: str, direction: str):
         raise HTTPException(status_code=404, detail="Session not found")
     
     current_stage = session["current_stage"]
-    if direction == "next" and current_stage < 3:
+    if direction == "next" and current_stage < 7:
         new_stage = current_stage + 1
     elif direction == "previous" and current_stage > 1:
         new_stage = current_stage - 1
