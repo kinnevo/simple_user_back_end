@@ -16,6 +16,7 @@ import os
 import sys
 
 from dotenv import load_dotenv
+from api_handler import router as chat_router
 
 load_dotenv()
 
@@ -277,3 +278,6 @@ async def logout(session: dict = Depends(get_current_session)):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# Add the chat router to the app
+app.include_router(chat_router)

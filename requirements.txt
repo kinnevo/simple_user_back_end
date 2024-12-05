@@ -21,3 +21,4 @@ six==1.16.0
 starlette==0.14.2
 typing_extensions==4.12.2
 uvicorn==0.15.0
+openai>=1.0.0
